@@ -62,20 +62,20 @@ impl Config {
 }
 
 /// Represents the entire emulator context.
-pub struct System<D> {
+pub struct System<'rom, D> {
     cfg: Config,
     hw: HardwareHandle,
     fc: FreqControl,
-    cpu: Cpu,
+    cpu: Cpu<Mmu<'rom>>,
     _dbg: D,
 }
 
-impl<D> System<D>
+impl<'rom, D> System<'rom, D>
 where
-    D: Debugger + 'static,
+    D: Debugger<'rom> + 'static,
 {
     /// Create a new emulator context.
-    pub fn new<T>(cfg: Config, rom: &[u8], hw: T, dbg: D) -> Self
+    pub fn new<T>(cfg: Config, rom: &'rom [u8], hw: T, dbg: D) -> Self
     where
         T: Hardware + 'static,
     {
@@ -85,7 +85,7 @@ where
 
         let mut fc = FreqControl::new(hw.clone(), &cfg);
 
-        let mmu = Mmu::new(hw.clone(), rom.to_vec(), cfg.color);
+        let mmu = Mmu::new(hw.clone(), rom, cfg.color);
         let cpu = Cpu::new(mmu);
 
         info!("Starting...");
@@ -125,16 +125,16 @@ pub fn run<T: Hardware + 'static>(cfg: Config, rom: &[u8], hw: T) {
 }
 
 /// Run the emulator with the given configuration and debugger.
-pub fn run_debug<T: Hardware + 'static, D: Debugger + 'static>(
+pub fn run_debug<'rom, T: Hardware + 'static, D: Debugger<'rom> + 'static>(
     cfg: Config,
-    rom: &[u8],
+    rom: &'rom [u8],
     hw: T,
     dbg: D,
 ) {
     run_inner(cfg, rom, hw, dbg)
 }
 
-fn run_inner<T: Hardware + 'static, D: Debugger + 'static>(cfg: Config, rom: &[u8], hw: T, dbg: D) {
+fn run_inner<'rom, T: Hardware + 'static, D: Debugger<'rom> + 'static>(cfg: Config, rom: &'rom [u8], hw: T, dbg: D) {
     let mut sys = System::new(cfg, rom, hw, dbg);
     while sys.poll() {}
 }

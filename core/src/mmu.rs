@@ -20,11 +20,11 @@ use log::*;
 /// This unit holds a memory byte array which represents address space of the memory.
 /// It provides the logic to intercept access from the CPU to the memory byte array,
 /// and to modify the memory access behaviour.
-pub struct Mmu {
+pub struct Mmu<'rom> {
     wram: Wram,
     hram: Hram,
     gpu: Gpu,
-    mbc: Mbc,
+    mbc: Mbc<'rom>,
     div: Divider,
     timer: Timer,
     ic: Ic,
@@ -35,9 +35,9 @@ pub struct Mmu {
     cgb: Cgb,
 }
 
-impl Mmu {
+impl<'rom> Mmu<'rom> {
     /// Create a new MMU instance.
-    pub fn new(hw: HardwareHandle, rom: Vec<u8>, color: bool) -> Mmu {
+    pub fn new(hw: HardwareHandle, rom: &'rom [u8], color: bool) -> Self {
         let irq = Irq::new();
 
         Mmu {
@@ -202,7 +202,7 @@ impl Mmu {
     }
 }
 
-impl Sys for Mmu {
+impl<'rom> Sys for Mmu<'rom> {
     /// Get the interrupt vector address without clearing the interrupt flag state
     fn peek_int_vec(&self) -> Option<u8> {
         self.ic.peek()

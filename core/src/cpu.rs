@@ -40,7 +40,7 @@ pub trait Sys {
 }
 
 /// Represents CPU state.
-pub struct Cpu<T = Mmu> {
+pub struct Cpu<T> {
     a: u8,
     b: u8,
     c: u8,
