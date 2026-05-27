@@ -1,4 +1,3 @@
-use crate::apu::Apu;
 use crate::cgb::Cgb;
 use crate::cpu::Sys;
 use crate::divider::Divider;
@@ -30,7 +29,6 @@ pub struct Mmu<'rom> {
     ic: Ic,
     serial: Serial,
     joypad: Joypad,
-    apu: Apu,
     dma: Dma,
     cgb: Cgb,
 }
@@ -50,7 +48,6 @@ impl<'rom> Mmu<'rom> {
             ic: Ic::new(irq.clone()),
             serial: Serial::new(hw.clone(), irq.clone()),
             joypad: Joypad::new(hw.clone(), irq),
-            apu: Apu::new(hw),
             dma: Dma::new(),
             cgb: Cgb::new(color),
         }
@@ -66,28 +63,6 @@ impl<'rom> Mmu<'rom> {
             0xff05..=0xff07 => self.timer.on_read(addr),
             0xff08..=0xff0e => todo!("i/o read: addr={:04x}", addr),
             0xff0f => self.ic.read_flags(),
-            0xff10 => self.apu.read_tone_sweep(),
-            0xff11 => self.apu.read_tone_wave(0),
-            0xff12 => self.apu.read_tone_envelop(0),
-            0xff13 => self.apu.read_tone_freq_low(0),
-            0xff14 => self.apu.read_tone_freq_high(0),
-            0xff16 => self.apu.read_tone_wave(1),
-            0xff17 => self.apu.read_tone_envelop(1),
-            0xff18 => self.apu.read_tone_freq_low(1),
-            0xff19 => self.apu.read_tone_freq_high(1),
-            0xff1a => self.apu.read_wave_enable(),
-            0xff1b => self.apu.read_wave_len(),
-            0xff1c => self.apu.read_wave_amp(),
-            0xff1d => self.apu.read_wave_freq_low(),
-            0xff1e => self.apu.read_wave_freq_high(),
-            0xff20 => self.apu.read_noise_len(),
-            0xff21 => self.apu.read_noise_envelop(),
-            0xff22 => self.apu.read_noise_poly_counter(),
-            0xff23 => self.apu.read_noise_select(),
-            0xff24 => self.apu.read_ctrl(),
-            0xff25 => self.apu.read_so_mask(),
-            0xff26 => self.apu.read_enable(),
-            0xff30..=0xff3f => self.apu.read_wave_buf(addr),
             0xff40 => self.gpu.read_ctrl(),
             0xff41 => self.gpu.read_status(),
             0xff42 => self.gpu.read_scy(),
@@ -113,8 +88,6 @@ impl<'rom> Mmu<'rom> {
             0xff6a => todo!("cgb bg palette data"),
             0xff6b => self.gpu.read_obj_color_palette(),
             0xff70 => self.wram.get_bank(),
-            0xff76 => self.apu.read_pcm12(),
-            0xff77 => self.apu.read_pcm34(),
             0x0000..=0xfeff | 0xff80..=0xffff => unreachable!("read non-i/o addr={:04x}", addr),
             _ => {
                 warn!("read unknown i/o addr={:04x}", addr);
@@ -133,28 +106,6 @@ impl<'rom> Mmu<'rom> {
             0xff05..=0xff07 => self.timer.on_write(addr, v),
             0xff08..=0xff0e => todo!("i/o write: addr={:04x}, v={:02x}", addr, v),
             0xff0f => self.ic.write_flags(v),
-            0xff10 => self.apu.write_tone_sweep(v),
-            0xff11 => self.apu.write_tone_wave(0, v),
-            0xff12 => self.apu.write_tone_envelop(0, v),
-            0xff13 => self.apu.write_tone_freq_low(0, v),
-            0xff14 => self.apu.write_tone_freq_high(0, v),
-            0xff16 => self.apu.write_tone_wave(1, v),
-            0xff17 => self.apu.write_tone_envelop(1, v),
-            0xff18 => self.apu.write_tone_freq_low(1, v),
-            0xff19 => self.apu.write_tone_freq_high(1, v),
-            0xff1a => self.apu.write_wave_enable(v),
-            0xff1b => self.apu.write_wave_len(v),
-            0xff1c => self.apu.write_wave_amp(v),
-            0xff1d => self.apu.write_wave_freq_low(v),
-            0xff1e => self.apu.write_wave_freq_high(v),
-            0xff20 => self.apu.write_noise_len(v),
-            0xff21 => self.apu.write_noise_envelop(v),
-            0xff22 => self.apu.write_noise_poly_counter(v),
-            0xff23 => self.apu.write_noise_select(v),
-            0xff24 => self.apu.write_ctrl(v),
-            0xff25 => self.apu.write_so_mask(v),
-            0xff26 => self.apu.write_enable(v),
-            0xff30..=0xff3f => self.apu.write_wave_buf(addr, v),
             0xff40 => self.gpu.write_ctrl(v),
             0xff41 => self.gpu.write_status(v),
             0xff42 => self.gpu.write_scy(v),
@@ -251,8 +202,7 @@ impl<'rom> Sys for Mmu<'rom> {
         if let Some(req) = self.gpu.step(cycles) {
             self.run_dma(req);
         }
-        let div_apu = self.div.step(cycles);
-        self.apu.step(cycles, div_apu);
+        self.div.step(cycles);
         self.timer.step(cycles);
         self.serial.step(cycles);
         self.joypad.poll();

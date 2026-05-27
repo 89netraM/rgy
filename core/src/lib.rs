@@ -108,7 +108,6 @@
 extern crate alloc;
 
 mod alu;
-mod apu;
 mod cgb;
 mod clock;
 mod divider;

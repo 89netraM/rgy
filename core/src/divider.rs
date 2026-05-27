@@ -15,9 +15,8 @@ impl Divider {
         }
     }
 
-    pub fn step(&mut self, cycles: usize) -> usize {
+    pub fn step(&mut self, cycles: usize) {
         self.timer.step(cycles);
-        self.timer.counter()
     }
 
     // TODO: To be used for STOP emulation where DIV doesn't ticks
