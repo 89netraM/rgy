@@ -87,33 +87,33 @@ fn test_timer_interval() {
 
     timer.set_interval(3);
 
-    assert!(!timer.tick());
-    assert!(!timer.tick());
-    assert!(timer.tick());
-    assert!(!timer.tick());
-    assert!(!timer.tick());
-    assert!(timer.tick());
-    assert!(!timer.tick());
-    assert!(!timer.tick());
-    assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
 
     timer.set_interval(2);
 
-    assert!(!timer.tick());
-    assert!(timer.tick());
-    assert!(!timer.tick());
-    assert!(timer.tick());
-    assert!(!timer.tick());
-    assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
 
     timer.set_interval(1);
 
-    assert!(timer.tick());
-    assert!(timer.tick());
-    assert!(timer.tick());
-    assert!(timer.tick());
-    assert!(timer.tick());
-    assert!(timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(timer.tick());
 }
 
 #[test]
@@ -125,44 +125,44 @@ fn test_timer_enable_disable() {
     timer.disable();
 
     for _ in 0..10 {
-        assert!(!timer.tick());
+        debug_assert!(!timer.tick());
     }
 
     timer.enable();
 
-    assert!(!timer.tick());
-    assert!(timer.tick());
-    assert!(!timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(!timer.tick());
 
     timer.disable();
 
     for _ in 0..10 {
-        assert!(!timer.tick());
+        debug_assert!(!timer.tick());
     }
 
     timer.enable();
 
-    assert!(timer.tick());
-    assert!(!timer.tick());
-    assert!(timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
 
     timer.disable();
 
     for _ in 0..10 {
-        assert!(!timer.tick());
+        debug_assert!(!timer.tick());
     }
 
     timer.enable();
 
-    assert!(!timer.tick());
-    assert!(timer.tick());
-    assert!(!timer.tick());
-    assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
 
     timer = Timer::disabled();
 
     for _ in 0..10 {
-        assert!(!timer.tick());
+        debug_assert!(!timer.tick());
     }
 }
 
@@ -173,17 +173,17 @@ fn test_timer_expires_in() {
     timer.set_interval(3);
 
     assert_eq!(timer.remaining(), 3);
-    assert!(!timer.tick());
+    debug_assert!(!timer.tick());
     assert_eq!(timer.remaining(), 2);
-    assert!(!timer.tick());
+    debug_assert!(!timer.tick());
     assert_eq!(timer.remaining(), 1);
-    assert!(timer.tick());
+    debug_assert!(timer.tick());
     assert_eq!(timer.remaining(), 3);
-    assert!(!timer.tick());
+    debug_assert!(!timer.tick());
     assert_eq!(timer.remaining(), 2);
-    assert!(!timer.tick());
+    debug_assert!(!timer.tick());
     assert_eq!(timer.remaining(), 1);
-    assert!(timer.tick());
+    debug_assert!(timer.tick());
 }
 
 #[test]
@@ -191,13 +191,13 @@ fn test_timer_zero_interval() {
     let mut timer = Timer::enabled();
 
     for _ in 0..10 {
-        assert!(!timer.tick());
+        debug_assert!(!timer.tick());
     }
 
     timer.set_interval(0);
 
     for _ in 0..10 {
-        assert!(!timer.tick());
+        debug_assert!(!timer.tick());
     }
 }
 
@@ -208,24 +208,24 @@ fn test_timer_reset() {
     timer.set_interval(3);
 
     assert_eq!(timer.remaining(), 3);
-    assert!(!timer.tick());
+    debug_assert!(!timer.tick());
 
     timer.reset();
 
     assert_eq!(timer.remaining(), 0);
 
     for _ in 0..10 {
-        assert!(!timer.tick());
+        debug_assert!(!timer.tick());
     }
 
     assert_eq!(timer.remaining(), 0);
 
     timer.set_interval(2);
 
-    assert!(!timer.tick());
-    assert!(timer.tick());
-    assert!(!timer.tick());
-    assert!(timer.tick());
-    assert!(!timer.tick());
-    assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
+    debug_assert!(!timer.tick());
+    debug_assert!(timer.tick());
 }

@@ -32,7 +32,7 @@ impl ClockDivider {
 
     pub fn step_one(&mut self, cycles: usize) -> bool {
         let times = self.step(cycles);
-        assert!(times <= 1);
+        debug_assert!(times <= 1);
         times == 1
     }
 

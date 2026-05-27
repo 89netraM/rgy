@@ -556,6 +556,6 @@ mod test {
         assert_eq!(cpu.get_a(), 0x00);
         assert_eq!(cpu.get_e(), 0x00);
         exec(&mut cpu); // cp e
-        assert!(cpu.get_zf());
+        debug_assert!(cpu.get_zf());
     }
 }

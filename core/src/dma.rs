@@ -45,8 +45,8 @@ impl Dma {
         }
 
         // Ensure cpu cycles = machine cycles * 4
-        assert!(cycles % 4 == 0);
-        assert!(self.cycles % 4 == 0);
+        debug_assert!(cycles % 4 == 0);
+        debug_assert!(self.cycles % 4 == 0);
 
         // Copy 1 byte per a machine cycle
         let len = (cycles / 4).min(self.cycles / 4) as u16;
@@ -61,7 +61,7 @@ impl Dma {
 
     /// Write DMA register (0xff46)
     pub fn start(&mut self, value: u8) {
-        assert!(value <= 0xdf);
+        debug_assert!(value <= 0xdf);
         self.cycles = 160 * 4; // 160 machine cycles (* 4 for cpu cycles)
         self.src = (value as u16) << 8;
         self.dst = 0xfe00;
